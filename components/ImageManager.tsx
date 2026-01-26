@@ -14,8 +14,7 @@ const hashPassword = (password: string): string => {
   return hash.toString(36);
 };
 
-// Default password: "bahadery2026" - CHANGE THIS!
-// To set a new password, hash it using hashPassword() in browser console and replace the value below
+// Credentials
 const ADMIN_PASSWORD_HASH = hashPassword("bahadery2026");
 const ADMIN_USERNAME = "bahaderyart";
 
@@ -29,13 +28,46 @@ const ImageManager: React.FC = () => {
   const [items, setItems] = useState<Artwork[]>([]);
   const [siteImages, setSiteImages] = useState<Record<string, string>>({});
 
-  // Check if user is authenticated on component mount
+  // Unified load function
+  const loadData = useCallback(() => {
+    const savedItems = localStorage.getItem('bahadery_art_collection');
+    const savedImages = localStorage.getItem('bahadery_art_images');
+
+    if (savedItems) {
+      setItems(JSON.parse(savedItems));
+    } else {
+      setItems(ARTWORKS);
+    }
+
+    if (savedImages) {
+      setSiteImages(JSON.parse(savedImages));
+    }
+  }, []);
+
+  // 1. Check if user is authenticated on component mount
   useEffect(() => {
     const authStatus = sessionStorage.getItem('bahadery_admin_auth');
     if (authStatus === 'authenticated') {
       setIsAuthenticated(true);
     }
   }, []);
+
+  // 2. Global event listener to open manager from footer/about page
+  useEffect(() => {
+    const handleOpenEvent = () => {
+      console.log("Admin panel triggered");
+      setIsOpen(true);
+    };
+    window.addEventListener('open-bahadery-admin', handleOpenEvent);
+    return () => window.removeEventListener('open-bahadery-admin', handleOpenEvent);
+  }, []);
+
+  // 3. Load data when opened
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
+    }
+  }, [isOpen, loadData]);
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,34 +93,8 @@ const ImageManager: React.FC = () => {
     setUsernameInput('');
   };
 
-  // Unified load function
-  const loadData = useCallback(() => {
-    const savedItems = localStorage.getItem('bahadery_art_collection');
-    const savedImages = localStorage.getItem('bahadery_art_images');
-
-    if (savedItems) {
-      setItems(JSON.parse(savedItems));
-    } else {
-      setItems(ARTWORKS);
-    }
-
-    if (savedImages) {
-      setSiteImages(JSON.parse(savedImages));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      loadData();
-    }
-  }, [isOpen, loadData]);
-
   const persistData = (newItems: Artwork[], newSiteImages: Record<string, string>) => {
-    // 1. Update items list
     localStorage.setItem('bahadery_art_collection', JSON.stringify(newItems));
-
-    // 2. Prepare the master image store
-    // We take the existing site images and add/update with artwork data URLs
     const masterImageStore = { ...newSiteImages };
     const titles: Record<string, string> = {};
 
@@ -101,8 +107,6 @@ const ImageManager: React.FC = () => {
 
     localStorage.setItem('bahadery_art_images', JSON.stringify(masterImageStore));
     localStorage.setItem('bahadery_art_titles', JSON.stringify(titles));
-
-    // Update state to reflect changes in UI
     setItems(newItems);
     setSiteImages(masterImageStore);
   };
@@ -163,11 +167,31 @@ const ImageManager: React.FC = () => {
     }
   };
 
-  // Show login card if opened but not authenticated
-  if (isOpen && !isAuthenticated) {
+  // -------------------------------------------------------------------------
+  // RENDER LOGIC
+  // -------------------------------------------------------------------------
+
+  // A. Not active: Show subtle floating link (or nothing since footer handles it)
+  if (!isOpen) {
     return (
-      <div className="fixed inset-0 z-[300] bg-[#f9faff]/90 backdrop-blur-md flex items-center justify-center p-6 animate-fadeIn">
-        <div className="bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-12 max-w-[480px] w-full">
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-4 left-4 z-[50] text-[8px] uppercase tracking-[0.4em] text-black/10 hover:text-black transition-all bg-transparent border-none p-0 m-0 cursor-pointer font-bold opacity-0 hover:opacity-100"
+        title="Admin Login"
+      >
+        Dev Manager
+      </button>
+    );
+  }
+
+  // B. Opened but NOT logged in: Show the Login Card
+  if (!isAuthenticated) {
+    return (
+      <div
+        className="fixed inset-0 z-[1000] bg-[#f9faff] flex items-center justify-center p-6 animate-fadeIn"
+        style={{ pointerEvents: 'auto' }}
+      >
+        <div className="bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-12 max-w-[480px] w-full transform -translate-y-12">
           <form onSubmit={handleLoginSubmit} className="space-y-8">
             <div className="space-y-4">
               <label className="block text-[#1a1c3d] font-bold text-lg">
@@ -178,7 +202,7 @@ const ImageManager: React.FC = () => {
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
                 autoFocus
-                className="w-full px-8 py-5 border-2 border-[#5c55fc] rounded-full text-lg outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#5c55fc]/20 transition-all font-medium"
+                className="w-full px-8 py-5 border-2 border-[#5c55fc] rounded-full text-lg outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#5c55fc]/20 transition-all font-medium text-black"
                 placeholder="Username"
                 required
               />
@@ -192,7 +216,7 @@ const ImageManager: React.FC = () => {
                 type="password"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full px-8 py-5 bg-[#fcfdfe] border border-gray-100 rounded-full text-lg outline-none placeholder:text-gray-400 focus:border-[#5c55fc] transition-all font-medium"
+                className="w-full px-8 py-5 bg-[#fcfdfe] border border-gray-100 rounded-full text-lg outline-none placeholder:text-gray-400 focus:border-[#5c55fc] transition-all font-medium text-black"
                 placeholder="Password"
                 required
               />
@@ -214,7 +238,7 @@ const ImageManager: React.FC = () => {
             <div className="text-center space-y-4 pt-4">
               <button
                 type="button"
-                className="text-gray-500 hover:text-gray-800 transition-colors text-lg font-medium"
+                className="text-gray-400 hover:text-gray-600 transition-colors text-lg font-medium"
               >
                 Forgot your password?
               </button>
@@ -244,28 +268,9 @@ const ImageManager: React.FC = () => {
     );
   }
 
-  // Add a global event listener so we can open the manager from other components (like the footer)
-  useEffect(() => {
-    const handleOpenEvent = () => setIsOpen(true);
-    window.addEventListener('open-bahadery-admin', handleOpenEvent);
-    return () => window.removeEventListener('open-bahadery-admin', handleOpenEvent);
-  }, []);
-
-  // Show a very subtle link at the bottom for the owner to access the manager
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-[50] text-[8px] uppercase tracking-[0.4em] text-black/10 hover:text-black transition-all bg-transparent border-none p-0 m-0 cursor-pointer font-bold"
-        title="Admin Login"
-      >
-        Dev Manager
-      </button>
-    );
-  }
-
+  // C. Logged in and opened: Show the Portfolio Manager
   return (
-    <div className="fixed inset-0 z-[300] bg-white overflow-y-auto p-6 sm:p-12 animate-fadeIn">
+    <div className="fixed inset-0 z-[1000] bg-white overflow-y-auto p-6 sm:p-12 animate-fadeIn">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8 border-b border-gray-100 pb-10">
           <div>
