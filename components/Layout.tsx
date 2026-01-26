@@ -60,31 +60,33 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       {!isHome && (
         <footer className="py-20 border-t border-gray-100 flex flex-col items-center text-gray-400 text-[10px] tracking-[0.3em] uppercase">
-          <div className="flex gap-8 mb-6">
-            <a
-              href="https://www.instagram.com/nangialaibahadery1992/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-black transition-colors"
+          <div className="flex flex-col items-center gap-6 mb-8">
+            <div className="flex gap-8">
+              <a
+                href="https://www.instagram.com/nangialaibahadery1992/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-black transition-colors"
+              >
+                Instagram
+              </a>
+              <a
+                href="https://www.facebook.com/abdulwahid.bahaduri1/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-black transition-colors"
+              >
+                Facebook
+              </a>
+            </div>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-bahadery-admin'))}
+              className="text-[9px] hover:text-black transition-colors opacity-60 hover:opacity-100 border-b border-transparent hover:border-black"
             >
-              Instagram
-            </a>
-            <a
-              href="https://www.facebook.com/abdulwahid.bahaduri1/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-black transition-colors"
-            >
-              Facebook
-            </a>
+              Dev Manager
+            </button>
           </div>
           <p>&copy; {new Date().getFullYear()} Bahadery Art - All Rights Reserved</p>
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('open-bahadery-admin'))}
-            className="mt-4 hover:text-black transition-colors"
-          >
-            Dev Manager
-          </button>
         </footer>
       )}
     </div>

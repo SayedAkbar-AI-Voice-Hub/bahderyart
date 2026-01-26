@@ -8,10 +8,10 @@ const About: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto animate-fadeIn px-4">
       <div className="mb-20">
-        <SmartImage 
+        <SmartImage
           id="site-about-portrait"
-          fallbackUrl="art-01.jpg" 
-          alt="Nangialai Bahadery Style" 
+          fallbackUrl="art-01.jpg"
+          alt="Nangialai Bahadery Style"
           className="w-full grayscale hover:grayscale-0 transition-all duration-1000 shadow-xl"
         />
       </div>
@@ -23,7 +23,7 @@ const About: React.FC = () => {
             <h2 className="serif text-4xl italic">Biography</h2>
             <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">Nangialai Bahadery</span>
           </div>
-          
+
           <div className="space-y-6 text-gray-700 leading-relaxed font-light text-lg">
             <p>
               Nangialai Bahadery is an Afghan fine arts artist based in the United Arab Emirates and a UAE Golden Visa holder in the Creative and Cultural category. His artistic practice centers on landscape painting as a form of cultural memory, documentation, and resilience.
@@ -74,7 +74,7 @@ const About: React.FC = () => {
                 <ul className="space-y-4">
                   {PERSONAL_EXHIBITIONS.map((ex, i) => (
                     <li key={i} className="text-sm text-gray-600 group">
-                      <span className="text-black font-medium block mb-1">{ex.year}</span> 
+                      <span className="text-black font-medium block mb-1">{ex.year}</span>
                       <p className="italic">{ex.title}</p>
                       <p className="text-xs text-gray-400 mt-1 uppercase tracking-tighter">{ex.location}</p>
                     </li>
@@ -87,7 +87,7 @@ const About: React.FC = () => {
                 <ul className="space-y-4">
                   {COLLECTIVE_EXHIBITIONS.map((ex, i) => (
                     <li key={i} className="text-sm text-gray-600 group">
-                      <span className="text-black font-medium block mb-1">{ex.year}</span> 
+                      <span className="text-black font-medium block mb-1">{ex.year}</span>
                       <p className="italic">{ex.title}</p>
                       <p className="text-xs text-gray-400 mt-1 uppercase tracking-tighter">{ex.location}</p>
                     </li>
@@ -121,16 +121,16 @@ const About: React.FC = () => {
             <h3 className="font-bold uppercase tracking-[0.3em] text-[10px] mt-16 mb-8 text-black">In The Press</h3>
             <ul className="space-y-6">
               <li className="text-sm text-gray-600">
-                 <span className="text-black font-medium">THE GUARDIAN</span>
-                 <p className="italic mt-1">Art meets nature in Bahadery's paintings</p>
+                <span className="text-black font-medium">THE GUARDIAN</span>
+                <p className="italic mt-1">Art meets nature in Bahadery's paintings</p>
               </li>
               <li className="text-sm text-gray-600">
-                 <span className="text-black font-medium">VOGUE</span>
-                 <p className="italic mt-1">The intricate world of modern landscape art</p>
+                <span className="text-black font-medium">VOGUE</span>
+                <p className="italic mt-1">The intricate world of modern landscape art</p>
               </li>
               <li className="text-sm text-gray-600">
-                 <span className="text-black font-medium">ART QUARTER</span>
-                 <p className="italic mt-1">Feature profile on technical mastery</p>
+                <span className="text-black font-medium">ART QUARTER</span>
+                <p className="italic mt-1">Feature profile on technical mastery</p>
               </li>
             </ul>
           </section>
@@ -140,6 +140,19 @@ const About: React.FC = () => {
       <div className="mt-32 py-24 border-y border-gray-100 italic text-2xl text-center text-gray-500 leading-relaxed px-10 serif">
         "The patience of a saint, the steady hand of a master-crafts person and the creativity of a remarkable artist. A fitting few lines to describe this incredibly self-taught talent."
         <div className="mt-8 text-[10px] uppercase tracking-[0.4em] text-gray-400">— Art Critics Journal</div>
+      </div>
+
+      <div className="flex flex-col items-center gap-6 mt-32 mb-20 border-t border-gray-50 pt-20">
+        <div className="flex gap-12 text-[10px] tracking-[0.3em] uppercase font-bold text-gray-400">
+          <a href="https://www.instagram.com/nangialaibahadery1992/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Instagram</a>
+          <a href="https://www.facebook.com/abdulwahid.bahaduri1/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Facebook</a>
+        </div>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('open-bahadery-admin'))}
+          className="text-[9px] uppercase tracking-[0.4em] text-gray-300 hover:text-black transition-colors font-bold mt-2"
+        >
+          Dev Manager
+        </button>
       </div>
 
       <Newsletter />
