@@ -17,12 +17,14 @@ const hashPassword = (password: string): string => {
 // Default password: "bahadery2026" - CHANGE THIS!
 // To set a new password, hash it using hashPassword() in browser console and replace the value below
 const ADMIN_PASSWORD_HASH = hashPassword("bahadery2026");
+const ADMIN_USERNAME = "bahaderyart";
 
 const ImageManager: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
-  const [showPasswordError, setShowPasswordError] = useState(false);
+  const [showError, setShowError] = useState(false);
   const [activeTab, setActiveTab] = useState<'artworks' | 'site'>('artworks');
   const [items, setItems] = useState<Artwork[]>([]);
   const [siteImages, setSiteImages] = useState<Record<string, string>>({});
@@ -35,18 +37,19 @@ const ImageManager: React.FC = () => {
     }
   }, []);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const inputHash = hashPassword(passwordInput);
 
-    if (inputHash === ADMIN_PASSWORD_HASH) {
+    if (usernameInput === ADMIN_USERNAME && inputHash === ADMIN_PASSWORD_HASH) {
       setIsAuthenticated(true);
       sessionStorage.setItem('bahadery_admin_auth', 'authenticated');
-      setShowPasswordError(false);
+      setShowError(false);
       setPasswordInput('');
+      setUsernameInput('');
     } else {
-      setShowPasswordError(true);
-      setTimeout(() => setShowPasswordError(false), 3000);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
     }
   };
 
@@ -55,6 +58,7 @@ const ImageManager: React.FC = () => {
     setIsOpen(false);
     sessionStorage.removeItem('bahadery_admin_auth');
     setPasswordInput('');
+    setUsernameInput('');
   };
 
   // Unified load function
@@ -159,64 +163,82 @@ const ImageManager: React.FC = () => {
     }
   };
 
-  // Show password prompt if opened but not authenticated
+  // Show login card if opened but not authenticated
   if (isOpen && !isAuthenticated) {
     return (
-      <div className="fixed inset-0 z-[300] bg-black/95 backdrop-blur-sm flex items-center justify-center p-6 animate-fadeIn">
-        <div className="bg-white rounded-lg shadow-2xl p-10 max-w-md w-full">
-          <div className="text-center mb-8">
-            <h2 className="serif text-3xl italic mb-2">Admin Access</h2>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-medium">
-              Portfolio Manager Authentication
-            </p>
-          </div>
+      <div className="fixed inset-0 z-[300] bg-[#f9faff]/90 backdrop-blur-md flex items-center justify-center p-6 animate-fadeIn">
+        <div className="bg-white rounded-[40px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-12 max-w-[480px] w-full">
+          <form onSubmit={handleLoginSubmit} className="space-y-8">
+            <div className="space-y-4">
+              <label className="block text-[#1a1c3d] font-bold text-lg">
+                Username
+              </label>
+              <input
+                type="text"
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                autoFocus
+                className="w-full px-8 py-5 border-2 border-[#5c55fc] rounded-full text-lg outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#5c55fc]/20 transition-all font-medium"
+                placeholder="Username"
+                required
+              />
+            </div>
 
-          <form onSubmit={handlePasswordSubmit} className="space-y-6">
-            <div>
-              <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-3">
-                Enter Password
+            <div className="space-y-4">
+              <label className="block text-[#1a1c3d] font-bold text-lg">
+                Password
               </label>
               <input
                 type="password"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                autoFocus
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:border-black outline-none transition-colors text-center text-lg tracking-wider"
-                placeholder="••••••••"
+                className="w-full px-8 py-5 bg-[#fcfdfe] border border-gray-100 rounded-full text-lg outline-none placeholder:text-gray-400 focus:border-[#5c55fc] transition-all font-medium"
+                placeholder="Password"
+                required
               />
-              {showPasswordError && (
-                <p className="text-red-500 text-xs mt-2 text-center animate-fadeIn">
-                  ✗ Incorrect password. Please try again.
-                </p>
-              )}
             </div>
 
-            <div className="flex gap-3">
+            {showError && (
+              <p className="text-red-500 text-sm text-center font-medium animate-pulse">
+                Invalid username or password. Please try again.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-5 bg-[#5c55fc] text-white rounded-full text-xl font-bold hover:bg-[#4a42f5] active:scale-[0.98] transition-all shadow-[0_10px_30px_-10px_rgba(92,85,252,0.5)] mt-4"
+            >
+              Log in
+            </button>
+
+            <div className="text-center space-y-4 pt-4">
+              <button
+                type="button"
+                className="text-gray-500 hover:text-gray-800 transition-colors text-lg font-medium"
+              >
+                Forgot your password?
+              </button>
+
+              <div className="flex items-center gap-4 py-4">
+                <div className="flex-1 h-[1px] bg-gray-100"></div>
+                <span className="text-gray-400 text-lg uppercase tracking-widest font-medium">or</span>
+                <div className="flex-1 h-[1px] bg-gray-100"></div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => {
                   setIsOpen(false);
+                  setShowError(false);
+                  setUsernameInput('');
                   setPasswordInput('');
-                  setShowPasswordError(false);
                 }}
-                className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-600 rounded-md hover:bg-gray-50 transition-all text-[10px] uppercase tracking-widest font-bold"
+                className="text-[#5c55fc] font-bold text-lg hover:underline"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition-all text-[10px] uppercase tracking-widest font-bold shadow-lg"
-              >
-                Access Manager
+                Back to Website
               </button>
             </div>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <p className="text-[9px] text-gray-400 uppercase tracking-wider">
-              Default Password: <span className="font-mono font-bold">bahadery2026</span>
-            </p>
-          </div>
         </div>
       </div>
     );
