@@ -2,6 +2,52 @@
 import { Artwork, VideoProject, Exhibition } from './types';
 
 export const ARTWORKS: Artwork[] = [
+  // New Originals (Sold & In Store)
+  {
+    id: 'n1',
+    title: 'Kabul Riverside Mosque',
+    category: 'original',
+    imageUrl: '/artworks/bridge_mosque.jpg',
+    year: '2024',
+    isSoldOut: true,
+    showInStore: true
+  },
+  {
+    id: 'n2',
+    title: 'Panjshir Valley Study',
+    category: 'original',
+    imageUrl: '/artworks/mountain_valley.jpg',
+    year: '2024',
+    isSoldOut: true,
+    showInStore: true
+  },
+  {
+    id: 'n3',
+    title: 'Old City Sunset',
+    category: 'original',
+    imageUrl: '/artworks/sunset_street.jpg',
+    year: '2024',
+    isSoldOut: true,
+    showInStore: true
+  },
+  {
+    id: 'n4',
+    title: 'Bamiyan Cliffside',
+    category: 'original',
+    imageUrl: '/artworks/bamiyan_cliffs.jpg',
+    year: '2024',
+    isSoldOut: true,
+    showInStore: true
+  },
+  {
+    id: 'n5',
+    title: 'Echoes of Bamiyan',
+    category: 'original',
+    imageUrl: '/artworks/buddha_nook.jpg',
+    year: '2024',
+    isSoldOut: true,
+    showInStore: true
+  },
   // General Artworks / Landscapes
   { id: 'a1', title: 'Mountain Waterfall Valley', category: 'original', imageUrl: 'art-01.jpg', year: '2024' },
   { id: 'a2', title: 'Riverside Village Life', category: 'original', imageUrl: 'art-02.jpg', year: '2024' },
@@ -29,9 +75,9 @@ export const ARTWORKS: Artwork[] = [
 ];
 
 export const MAKING_OF_VIDEOS: VideoProject[] = [
-  { 
-    id: 'v1', 
-    title: 'Process: Landscapes of the Soul', 
+  {
+    id: 'v1',
+    title: 'Process: Landscapes of the Soul',
     description: 'A timelapse capturing the delicate layering of colors in my latest valley series.',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
     thumbnailUrl: 'art-01.jpg'
