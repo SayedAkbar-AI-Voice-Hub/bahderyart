@@ -19,17 +19,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col font-light bg-white">
       <ImageManager />
-      
+
       {/* Header with Branding and Navigation */}
-      <header 
-        className={`z-40 w-full px-8 py-10 flex flex-col lg:flex-row items-start justify-between gap-6 transition-all duration-700 ${
-          isHome ? 'absolute top-0 text-white' : 'relative text-gray-900 border-b border-gray-50'
-        }`}
+      <header
+        className={`z-40 w-full px-8 py-10 flex flex-col lg:flex-row items-start justify-between gap-6 transition-all duration-700 ${isHome ? 'absolute top-0 text-white' : 'relative text-gray-900 border-b border-gray-50'
+          }`}
       >
         {/* Branding: Name and Description stacked vertically */}
         <div className="flex flex-col">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="text-3xl sm:text-4xl serif hover:opacity-70 transition-opacity whitespace-nowrap block leading-tight"
           >
             Bahadery Art
@@ -45,9 +44,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`text-[10px] sm:text-[11px] tracking-[0.25em] font-medium transition-colors hover:opacity-50 ${
-                pathname === item.path ? 'opacity-100 font-bold underline underline-offset-8' : 'opacity-80'
-              }`}
+              className={`text-[10px] sm:text-[11px] tracking-[0.25em] font-medium transition-colors hover:opacity-50 ${pathname === item.path ? 'opacity-100 font-bold underline underline-offset-8' : 'opacity-80'
+                }`}
             >
               {item.label}
             </Link>
@@ -63,24 +61,30 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {!isHome && (
         <footer className="py-20 border-t border-gray-100 flex flex-col items-center text-gray-400 text-[10px] tracking-[0.3em] uppercase">
           <div className="flex gap-8 mb-6">
-            <a 
-              href="https://www.instagram.com/nangialaibahadery1992/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://www.instagram.com/nangialaibahadery1992/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-black transition-colors"
             >
               Instagram
             </a>
-            <a 
-              href="https://www.facebook.com/abdulwahid.bahaduri1/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://www.facebook.com/abdulwahid.bahaduri1/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-black transition-colors"
             >
               Facebook
             </a>
           </div>
           <p>&copy; {new Date().getFullYear()} Bahadery Art - All Rights Reserved</p>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-bahadery-admin'))}
+            className="mt-4 hover:text-black transition-colors"
+          >
+            Dev Manager
+          </button>
         </footer>
       )}
     </div>

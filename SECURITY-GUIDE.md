@@ -8,11 +8,11 @@ The Portfolio Manager is now **password-protected** and **hidden from public vis
 ## 🔑 How to Access Admin Panel
 
 ### Step 1: Open the Secret Admin Panel
-Regular visitors will not notice a "Website Setup" button. Instead, look at the very **bottom-left corner** of your website.
+Regular visitors will not notice a "Website Setup" button. Instead, look at the very **bottom of your website** (especially on the Artwork, About, or Contact pages).
 
-**Click the text:** `Dev Manager`
+**In the footer, click the text:** `Dev Manager`
 
-This text is very small and light grey (almost invisible) to keep your portfolio looking clean for visitors. Clicking it will open the admin login screen.
+This link is placed naturally in the footer. Clicking it will open the admin login screen. Note: On the Home page, the link is subtly placed in the bottom-left corner.
 
 ### Step 2: Enter Your Password
 **Default Password:** `bahadery2026`
@@ -179,7 +179,7 @@ Before publishing your site, make sure:
 
 ## 💡 Pro Tips
 
-1. **Find the Link**: The "Dev Manager" link is in the bottom-left corner.
+1. **Find the Link**: The "Dev Manager" link is in the footer of all main pages and bottom-left on the Home page.
 2. **Use Strong Passwords**: Combine uppercase, lowercase, numbers, and symbols
 3. **Test Before Publishing**: Always test the login before pushing to production
 4. **Keep Code Backup**: Save a copy of your password in a secure password manager

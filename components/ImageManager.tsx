@@ -222,12 +222,19 @@ const ImageManager: React.FC = () => {
     );
   }
 
+  // Add a global event listener so we can open the manager from other components (like the footer)
+  useEffect(() => {
+    const handleOpenEvent = () => setIsOpen(true);
+    window.addEventListener('open-bahadery-admin', handleOpenEvent);
+    return () => window.removeEventListener('open-bahadery-admin', handleOpenEvent);
+  }, []);
+
   // Show a very subtle link at the bottom for the owner to access the manager
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-[50] text-[8px] uppercase tracking-[0.4em] text-gray-200 hover:text-gray-400 transition-colors bg-transparent border-none p-0 m-0 cursor-pointer"
+        className="fixed bottom-4 left-4 z-[50] text-[8px] uppercase tracking-[0.4em] text-black/10 hover:text-black transition-all bg-transparent border-none p-0 m-0 cursor-pointer font-bold"
         title="Admin Login"
       >
         Dev Manager
