@@ -162,6 +162,36 @@ const ImageManager: React.FC = () => {
     persistData(updated, siteImages);
   };
 
+  // --- Drag and Drop Handlers ---
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedItemIndex(index);
+    // Needed for Firefox
+    e.dataTransfer.setData('text/plain', index.toString());
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+
+    const newItems = [...items];
+    const draggedItem = newItems[draggedItemIndex];
+
+    // Remove from old position and insert at new position
+    newItems.splice(draggedItemIndex, 1);
+    newItems.splice(targetIndex, 0, draggedItem);
+
+    setDraggedItemIndex(null);
+    persistData(newItems, siteImages);
+  };
+
   const handleFileUpload = async (id: string, file: File, isSiteImage = false) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -272,8 +302,19 @@ const ImageManager: React.FC = () => {
               <button onClick={handleAddItem} className="text-[10px] bg-green-600 text-white px-10 py-4 hover:bg-green-700 tracking-widest uppercase transition-all shadow-lg font-bold rounded-sm">+ Add New Artwork</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
-              {items.map((art) => (
-                <div key={art.id} className="border border-gray-100 p-8 bg-white shadow-sm flex flex-col group hover:shadow-2xl transition-all relative rounded-sm">
+              {items.map((art, index) => (
+                <div
+                  key={art.id}
+                  draggable={true}
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className={`border border-gray-100 p-8 bg-white shadow-sm flex flex-col group hover:shadow-2xl transition-all relative rounded-sm cursor-move ${draggedItemIndex === index ? 'opacity-40 scale-95' : ''}`}
+                >
+                  <div className="absolute top-4 left-4 text-gray-300 group-hover:text-black transition-colors" title="Drag to reorder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                  </div>
+
                   <button onClick={() => handleDeleteItem(art.id)} className="absolute top-4 right-4 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all p-2 rounded-md shadow-sm z-10">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
