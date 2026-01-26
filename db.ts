@@ -1,4 +1,6 @@
 
+import { Artwork } from './types';
+
 /**
  * Simple IndexedDB wrapper to store and retrieve large image data (base64/blobs).
  * This solves the 5MB localStorage limit problem.
@@ -71,3 +73,16 @@ export const clearAllImages = async (): Promise<void> => {
         request.onsuccess = () => resolve();
     });
 };
+
+export const hydrateCollection = async (items: Artwork[]): Promise<Artwork[]> => {
+    return Promise.all(
+        items.map(async (item) => {
+            if (item.imageUrl === 'indexeddb') {
+                const actualImage = await getImage(item.id);
+                return { ...item, imageUrl: actualImage || '' };
+            }
+            return item;
+        })
+    );
+};
+

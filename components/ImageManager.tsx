@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ARTWORKS } from '../constants';
-import { Artwork } from '../types';
-import { saveImage, getImage, clearAllImages } from '../db';
+import { ARTWORKS, MAKING_OF_VIDEOS } from '../constants';
+import { Artwork, VideoProject } from '../types';
+import { saveImage, getImage, deleteImage, clearAllImages, hydrateCollection } from '../db';
 
 // Simple hash function for password verification
 const hashPassword = (password: string): string => {
@@ -25,29 +25,25 @@ const ImageManager: React.FC = () => {
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [showError, setShowError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'artworks' | 'site'>('artworks');
+  const [activeTab, setActiveTab] = useState<'artworks' | 'site' | 'making-of'>('artworks');
   const [items, setItems] = useState<Artwork[]>([]);
   const [siteImages, setSiteImages] = useState<Record<string, string>>({});
+  const [makingOfs, setMakingOfs] = useState<VideoProject[]>([]);
 
   // Unified load function that handles IndexedDB
   const loadData = useCallback(async () => {
     const savedItems = localStorage.getItem('bahadery_art_collection');
     const savedSiteMeta = localStorage.getItem('bahadery_art_images_meta');
+    const savedMakingOf = localStorage.getItem('bahadery_making_of');
 
     let currentItems: Artwork[] = savedItems ? JSON.parse(savedItems) : ARTWORKS;
     let currentSiteImages: Record<string, string> = savedSiteMeta ? JSON.parse(savedSiteMeta) : {};
+    let currentMakingOf: VideoProject[] = savedMakingOf ? JSON.parse(savedMakingOf) : MAKING_OF_VIDEOS;
 
-    // For any items marked as 'indexeddb', fetch the actual image
-    const hydratedItems = await Promise.all(
-      currentItems.map(async (item) => {
-        if (item.imageUrl === 'indexeddb') {
-          const actualImage = await getImage(item.id);
-          return { ...item, imageUrl: actualImage || '' };
-        }
-        return item;
-      })
-    );
+    // Hydrate artworks
+    const hydratedItems = await hydrateCollection(currentItems);
 
+    // Hydrate site images
     const hydratedSiteImages: Record<string, string> = {};
     const siteKeys = Object.keys(currentSiteImages);
     for (const key of siteKeys) {
@@ -61,6 +57,7 @@ const ImageManager: React.FC = () => {
 
     setItems(hydratedItems);
     setSiteImages(hydratedSiteImages);
+    setMakingOfs(currentMakingOf);
   }, []);
 
   // 1. Check if user is authenticated on component mount
@@ -109,10 +106,10 @@ const ImageManager: React.FC = () => {
     setUsernameInput('');
   };
 
-  const persistData = async (newItems: Artwork[], newSiteImages: Record<string, string>) => {
+  const persistData = async (newItems: Artwork[], newSiteImages: Record<string, string>, newMakingOf?: VideoProject[]) => {
     // metadata storage with markers
     const itemsForMetadata = newItems.map(item => {
-      if (item.imageUrl && item.imageUrl.startsWith('data:')) {
+      if (item.imageUrl && (item.imageUrl.startsWith('data:') || item.imageUrl === 'indexeddb')) {
         return { ...item, imageUrl: 'indexeddb' };
       }
       return item;
@@ -122,13 +119,18 @@ const ImageManager: React.FC = () => {
 
     const siteMarkers: Record<string, string> = {};
     Object.keys(newSiteImages).forEach(key => {
-      if (newSiteImages[key].startsWith('data:')) {
+      if (newSiteImages[key] && (newSiteImages[key].startsWith('data:') || newSiteImages[key] === 'indexeddb')) {
         siteMarkers[key] = 'indexeddb';
       } else {
         siteMarkers[key] = newSiteImages[key];
       }
     });
     localStorage.setItem('bahadery_art_images_meta', JSON.stringify(siteMarkers));
+
+    if (newMakingOf) {
+      localStorage.setItem('bahadery_making_of', JSON.stringify(newMakingOf));
+      setMakingOfs([...newMakingOf]);
+    }
 
     setItems([...newItems]);
     setSiteImages({ ...newSiteImages });
@@ -147,19 +149,43 @@ const ImageManager: React.FC = () => {
       showInStore: false
     };
     const updated = [newItem, ...items];
-    persistData(updated, siteImages);
+    persistData(updated, siteImages, makingOfs);
   };
 
-  const handleDeleteItem = (id: string) => {
+  const handleDeleteItem = async (id: string) => {
     if (window.confirm('Delete this artwork?')) {
+      await deleteImage(id);
       const filtered = items.filter(item => item.id !== id);
-      persistData(filtered, siteImages);
+      persistData(filtered, siteImages, makingOfs);
     }
   };
 
   const updateArtwork = (id: string, updates: Partial<Artwork>) => {
     const updated = items.map(item => item.id === id ? { ...item, ...updates } : item);
-    persistData(updated, siteImages);
+    persistData(updated, siteImages, makingOfs);
+  };
+
+  const handleAddMakingOf = () => {
+    const newItem: VideoProject = {
+      id: `v-${Date.now()}`,
+      title: 'New Video Post',
+      description: '',
+      videoUrl: '',
+      thumbnailUrl: ''
+    };
+    persistData(items, siteImages, [newItem, ...makingOfs]);
+  };
+
+  const updateMakingOf = (id: string, updates: Partial<VideoProject>) => {
+    const updated = makingOfs.map(v => v.id === id ? { ...v, ...updates } : v);
+    persistData(items, siteImages, updated);
+  };
+
+  const deleteMakingOf = (id: string) => {
+    if (confirm('Delete this post?')) {
+      const filtered = makingOfs.filter(v => v.id !== id);
+      persistData(items, siteImages, filtered);
+    }
   };
 
   // --- Drag and Drop Handlers ---
@@ -167,7 +193,6 @@ const ImageManager: React.FC = () => {
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedItemIndex(index);
-    // Needed for Firefox
     e.dataTransfer.setData('text/plain', index.toString());
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -184,28 +209,30 @@ const ImageManager: React.FC = () => {
     const newItems = [...items];
     const draggedItem = newItems[draggedItemIndex];
 
-    // Remove from old position and insert at new position
     newItems.splice(draggedItemIndex, 1);
     newItems.splice(targetIndex, 0, draggedItem);
 
     setDraggedItemIndex(null);
-    persistData(newItems, siteImages);
+    persistData(newItems, siteImages, makingOfs);
   };
 
-  const handleFileUpload = async (id: string, file: File, isSiteImage = false) => {
+  const handleFileUpload = async (id: string, file: File, type: 'artwork' | 'site' | 'making-of' = 'artwork') => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       const base64 = e.target?.result as string;
 
-      // Save to IndexedDB
+      // Save heavy data to IndexedDB
       await saveImage(id, base64);
 
-      if (isSiteImage) {
+      if (type === 'site') {
         const updatedSiteImages = { ...siteImages, [id]: base64 };
-        persistData(items, updatedSiteImages);
+        persistData(items, updatedSiteImages, makingOfs);
+      } else if (type === 'making-of') {
+        const updatedMakingOf = makingOfs.map(v => v.id === id ? { ...v, thumbnailUrl: base64 } : v);
+        persistData(items, siteImages, updatedMakingOf);
       } else {
         const updatedItems = items.map(item => item.id === id ? { ...item, imageUrl: base64 } : item);
-        persistData(updatedItems, siteImages);
+        persistData(updatedItems, siteImages, makingOfs);
       }
     };
     reader.readAsDataURL(file);
@@ -220,6 +247,7 @@ const ImageManager: React.FC = () => {
       localStorage.removeItem('bahadery_art_collection');
       localStorage.removeItem('bahadery_art_images_meta');
       localStorage.removeItem('bahadery_art_titles');
+      localStorage.removeItem('bahadery_making_of');
       await clearAllImages();
       window.location.reload();
     }
@@ -291,12 +319,13 @@ const ImageManager: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex gap-12 border-b border-gray-100 mb-10">
-          <button onClick={() => setActiveTab('artworks')} className={`pb-4 text-[11px] tracking-[0.3em] uppercase font-bold transition-all border-b-2 ${activeTab === 'artworks' ? 'border-black text-black' : 'border-transparent text-gray-400'}`}>Manage Artworks ({items.length})</button>
-          <button onClick={() => setActiveTab('site')} className={`pb-4 text-[11px] tracking-[0.3em] uppercase font-bold transition-all border-b-2 ${activeTab === 'site' ? 'border-black text-black' : 'border-transparent text-gray-400'}`}>Site Content</button>
+        <div className="flex gap-12 border-b border-gray-100 mb-10 overflow-x-auto">
+          <button onClick={() => setActiveTab('artworks')} className={`pb-4 text-[11px] tracking-[0.3em] uppercase font-bold transition-all border-b-2 whitespace-nowrap ${activeTab === 'artworks' ? 'border-black text-black' : 'border-transparent text-gray-400'}`}>Manage Artworks ({items.length})</button>
+          <button onClick={() => setActiveTab('making-of')} className={`pb-4 text-[11px] tracking-[0.3em] uppercase font-bold transition-all border-b-2 whitespace-nowrap ${activeTab === 'making-of' ? 'border-black text-black' : 'border-transparent text-gray-400'}`}>Making Of Posts ({makingOfs.length})</button>
+          <button onClick={() => setActiveTab('site')} className={`pb-4 text-[11px] tracking-[0.3em] uppercase font-bold transition-all border-b-2 whitespace-nowrap ${activeTab === 'site' ? 'border-black text-black' : 'border-transparent text-gray-400'}`}>Site Features</button>
         </div>
 
-        {activeTab === 'artworks' ? (
+        {activeTab === 'artworks' && (
           <>
             <div className="mb-10 flex justify-end">
               <button onClick={handleAddItem} className="text-[10px] bg-green-600 text-white px-10 py-4 hover:bg-green-700 tracking-widest uppercase transition-all shadow-lg font-bold rounded-sm">+ Add New Artwork</button>
@@ -342,26 +371,90 @@ const ImageManager: React.FC = () => {
                   </div>
                   <label className="cursor-pointer bg-black text-white px-4 py-4 text-[10px] text-center hover:bg-gray-800 transition-all uppercase font-bold rounded-sm">
                     {art.imageUrl ? 'Change Image' : 'Upload Image'}
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload(art.id, e.target.files[0])} />
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload(art.id, e.target.files[0], 'artwork')} />
                   </label>
                 </div>
               ))}
             </div>
           </>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+        )}
+
+        {activeTab === 'making-of' && (
+          <div className="space-y-12">
+            <div className="flex justify-end">
+              <button onClick={handleAddMakingOf} className="text-[10px] bg-black text-white px-10 py-4 hover:opacity-80 tracking-widest uppercase transition-all shadow-lg font-bold rounded-sm">+ Add Making-Of Post</button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {makingOfs.map((v) => (
+                <div key={v.id} className="border border-gray-100 p-8 bg-white relative rounded-sm group hover:shadow-xl transition-all">
+                  <button onClick={() => deleteMakingOf(v.id)} className="absolute top-4 right-4 text-red-400 hover:text-red-600 p-2">Delete</button>
+                  <div className="space-y-6">
+                    <input
+                      type="text"
+                      value={v.title}
+                      onChange={(e) => updateMakingOf(v.id, { title: e.target.value })}
+                      className="w-full text-xl serif border-b border-gray-100 py-2 outline-none"
+                      placeholder="Project Title"
+                    />
+                    <textarea
+                      value={v.description}
+                      onChange={(e) => updateMakingOf(v.id, { description: e.target.value })}
+                      className="w-full text-sm font-light border-b border-gray-100 py-2 outline-none resize-none"
+                      placeholder="Short description..."
+                      rows={2}
+                    />
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Video Embed URL (YouTube/Vimeo)</label>
+                      <input
+                        type="text"
+                        value={v.videoUrl}
+                        onChange={(e) => updateMakingOf(v.id, { videoUrl: e.target.value })}
+                        className="w-full text-xs font-mono bg-gray-50 p-3 outline-none"
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-8 items-center">
+                      <div className="aspect-video bg-gray-100 overflow-hidden border">
+                        {v.thumbnailUrl ? <img src={v.thumbnailUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400 uppercase italic">No Thumbnail</div>}
+                      </div>
+                      <label className="cursor-pointer bg-gray-100 text-gray-600 px-4 py-4 text-[9px] text-center hover:bg-gray-200 transition-all uppercase font-bold rounded-sm">
+                        Upload Thumbnail
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload(v.id, e.target.files[0], 'making-of')} />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'site' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
             <div className="space-y-6">
-              <h3 className="serif text-3xl italic">About You (Artist Portrait)</h3>
+              <h3 className="serif text-3xl italic">About Page Portrait</h3>
               <div className="aspect-[4/5] bg-gray-100 overflow-hidden border flex items-center justify-center">
                 {siteImages['site-about-portrait'] ? <img src={siteImages['site-about-portrait']} className="w-full h-full object-cover" /> : <span className="text-[10px] text-gray-400 uppercase italic">Default Portrait</span>}
               </div>
               <label className="block w-full cursor-pointer bg-black text-white px-4 py-4 text-[10px] text-center uppercase font-bold rounded-sm">
-                Upload Portrait
-                <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload('site-about-portrait', e.target.files[0], true)} />
+                Upload New Image
+                <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload('site-about-portrait', e.target.files[0], 'site')} />
+              </label>
+            </div>
+
+            <div className="space-y-6">
+              <h3 className="serif text-3xl italic">Contact Page Feature</h3>
+              <div className="aspect-[4/5] bg-gray-100 overflow-hidden border flex items-center justify-center">
+                {siteImages['site-contact-feature'] ? <img src={siteImages['site-contact-feature']} className="w-full h-full object-cover" /> : <span className="text-[10px] text-gray-400 uppercase italic">Default Feature Photo</span>}
+              </div>
+              <label className="block w-full cursor-pointer bg-black text-white px-4 py-4 text-[10px] text-center uppercase font-bold rounded-sm">
+                Upload New Image
+                <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload('site-contact-feature', e.target.files[0], 'site')} />
               </label>
             </div>
           </div>
         )}
+
         <div className="mt-20 pt-10 border-t border-gray-100 flex justify-center">
           <button onClick={clearAll} className="text-[9px] text-red-300 hover:text-red-500 tracking-[0.4em] uppercase">Dangerous: Reset All Website Content</button>
         </div>

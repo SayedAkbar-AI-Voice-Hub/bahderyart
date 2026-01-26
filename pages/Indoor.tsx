@@ -6,23 +6,26 @@ import Newsletter from '../components/Newsletter';
 import Lightbox from '../components/Lightbox';
 import SmartImage from '../components/SmartImage';
 
+import { hydrateCollection } from '../db';
+
 const Indoor: React.FC = () => {
   const [subFilter, setSubFilter] = useState<'all' | 'mural' | 'alcove' | 'exhibition'>('all');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [collection, setCollection] = useState<Artwork[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('bahadery_art_collection');
-    if (saved) {
-      setCollection(JSON.parse(saved));
-    } else {
-      setCollection(ARTWORKS);
-    }
+    const load = async () => {
+      const saved = localStorage.getItem('bahadery_art_collection');
+      const baseCollection = saved ? JSON.parse(saved) : ARTWORKS;
+      const hydrated = await hydrateCollection(baseCollection);
+      setCollection(hydrated);
+    };
+    load();
   }, []);
 
   const indoorPieces = collection.filter(a => a.category === 'indoor');
-  const filteredIndoor = subFilter === 'all' 
-    ? indoorPieces 
+  const filteredIndoor = subFilter === 'all'
+    ? indoorPieces
     : indoorPieces.filter(a => a.subCategory === subFilter);
 
   return (
@@ -49,14 +52,14 @@ const Indoor: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {filteredIndoor.map((art) => (
           <div key={art.id} className="group">
-            <div 
+            <div
               className="overflow-hidden relative bg-gray-50 shadow-sm transition-shadow hover:shadow-xl cursor-zoom-in"
               onClick={() => setSelectedImage(art.imageUrl)}
             >
-              <SmartImage 
+              <SmartImage
                 id={art.id}
-                fallbackUrl={art.imageUrl} 
-                alt={art.title} 
+                fallbackUrl={art.imageUrl}
+                alt={art.title}
                 className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
@@ -71,9 +74,9 @@ const Indoor: React.FC = () => {
         ))}
       </div>
 
-      <Lightbox 
-        imageUrl={selectedImage} 
-        onClose={() => setSelectedImage(null)} 
+      <Lightbox
+        imageUrl={selectedImage}
+        onClose={() => setSelectedImage(null)}
       />
 
       <Newsletter />

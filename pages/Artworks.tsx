@@ -6,18 +6,21 @@ import Newsletter from '../components/Newsletter';
 import Lightbox from '../components/Lightbox';
 import SmartImage from '../components/SmartImage';
 
+import { hydrateCollection } from '../db';
+
 const Artworks: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'original' | 'limited' | 'postcard' | 'indoor'>('all');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [collection, setCollection] = useState<Artwork[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('bahadery_art_collection');
-    if (saved) {
-      setCollection(JSON.parse(saved));
-    } else {
-      setCollection(ARTWORKS);
-    }
+    const load = async () => {
+      const saved = localStorage.getItem('bahadery_art_collection');
+      const baseCollection = saved ? JSON.parse(saved) : ARTWORKS;
+      const hydrated = await hydrateCollection(baseCollection);
+      setCollection(hydrated);
+    };
+    load();
   }, []);
 
   const filteredArtworks = filter === 'all' ? collection : collection.filter(a => a.category === filter);
@@ -39,14 +42,14 @@ const Artworks: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 items-start">
         {filteredArtworks.map((art) => (
           <div key={art.id} className="group">
-            <div 
+            <div
               className="overflow-hidden relative bg-gray-50 aspect-auto shadow-sm cursor-zoom-in"
               onClick={() => setSelectedImage(art.imageUrl)}
             >
-              <SmartImage 
+              <SmartImage
                 id={art.id}
-                fallbackUrl={art.imageUrl} 
-                alt={art.title} 
+                fallbackUrl={art.imageUrl}
+                alt={art.title}
                 className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
               />
               {art.isSoldOut && (
@@ -63,9 +66,9 @@ const Artworks: React.FC = () => {
         ))}
       </div>
 
-      <Lightbox 
-        imageUrl={selectedImage} 
-        onClose={() => setSelectedImage(null)} 
+      <Lightbox
+        imageUrl={selectedImage}
+        onClose={() => setSelectedImage(null)}
       />
 
       <Newsletter />
