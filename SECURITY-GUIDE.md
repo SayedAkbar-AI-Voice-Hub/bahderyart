@@ -8,11 +8,11 @@ The Portfolio Manager is now **password-protected** and **hidden from public vis
 ## 🔑 How to Access Admin Panel
 
 ### Step 1: Open the Secret Admin Panel
-Regular visitors **cannot see** the "Website Setup" button anymore. To access it:
+Regular visitors will not notice a "Website Setup" button. Instead, look at the very **bottom-left corner** of your website.
 
-**Press:** `Control + Option + A` (Mac) or `Ctrl + Alt + A` (Windows/Linux)
+**Click the text:** `Dev Manager`
 
-This will open the admin login screen.
+This text is very small and light grey (almost invisible) to keep your portfolio looking clean for visitors. Clicking it will open the admin login screen.
 
 ### Step 2: Enter Your Password
 **Default Password:** `bahadery2026`
@@ -69,9 +69,9 @@ git push origin main
 
 ## 📱 Quick Access Reference
 
-| Action | Keyboard Shortcut |
+| Action | Access Method |
 |--------|------------------|
-| Open Admin Panel | `Control + Option + A` (Mac)<br>`Ctrl + Alt + A` (Windows/Linux) |
+| Open Admin Panel | Click **Dev Manager** (bottom-left corner) |
 | Login | Enter password + press "Access Manager" |
 | Logout | Click "🔒 Logout" button in manager |
 | Save & Close | Click "Save & Exit" button |
@@ -131,9 +131,7 @@ If you forget your password:
 ## 🆘 Troubleshooting
 
 ### Problem: Can't access admin panel
-**Solution**: Make sure you're pressing the correct key combination:
-- Mac: `Control + Option + A` (⌃ + ⌥ + A)
-- Windows/Linux: `Ctrl + Alt + A`
+**Solution**: Look at the very bottom-left corner of the page for the words "Dev Manager" and click them. If you can't see it, it's because it's set to a very light color to be discreet.
 
 ### Problem: Password not working
 **Solutions**:
@@ -158,7 +156,7 @@ If you forget your password:
 | Setting | Value |
 |---------|-------|
 | Default Password | `bahadery2026` |
-| Keyboard Shortcut | `Ctrl + Alt + A` |
+| Access Method | Click "Dev Manager" (Bottom-Left) |
 | Session Duration | Until browser closes |
 | Authentication Method | Password hash comparison |
 | Storage Location | sessionStorage (browser) |
@@ -181,7 +179,7 @@ Before publishing your site, make sure:
 
 ## 💡 Pro Tips
 
-1. **Remember the Shortcut**: Write down `Ctrl + Alt + A` somewhere safe
+1. **Find the Link**: The "Dev Manager" link is in the bottom-left corner.
 2. **Use Strong Passwords**: Combine uppercase, lowercase, numbers, and symbols
 3. **Test Before Publishing**: Always test the login before pushing to production
 4. **Keep Code Backup**: Save a copy of your password in a secure password manager

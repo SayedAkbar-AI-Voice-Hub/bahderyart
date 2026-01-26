@@ -159,20 +159,6 @@ const ImageManager: React.FC = () => {
     }
   };
 
-  // Don't show button to regular visitors
-  // Only show when user presses special key combination (Ctrl + Alt + A)
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      // Changed to Ctrl + Alt + A to avoid conflict with Chrome's Search Tabs (Cmd + Shift + A)
-      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'a') {
-        e.preventDefault();
-        setIsOpen(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
-
   // Show password prompt if opened but not authenticated
   if (isOpen && !isAuthenticated) {
     return (
@@ -230,18 +216,23 @@ const ImageManager: React.FC = () => {
             <p className="text-[9px] text-gray-400 uppercase tracking-wider">
               Default Password: <span className="font-mono font-bold">bahadery2026</span>
             </p>
-            <p className="text-[8px] text-gray-300 mt-2 italic">
-              Change this in ImageManager.tsx after first login
-            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Don't show anything if not opened
+  // Show a very subtle link at the bottom for the owner to access the manager
   if (!isOpen) {
-    return null;
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-4 left-4 z-[50] text-[8px] uppercase tracking-[0.4em] text-gray-200 hover:text-gray-400 transition-colors bg-transparent border-none p-0 m-0 cursor-pointer"
+        title="Admin Login"
+      >
+        Dev Manager
+      </button>
+    );
   }
 
   return (

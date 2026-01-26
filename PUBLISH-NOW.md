@@ -31,7 +31,7 @@ videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
 
 ### 3. Upload Your Artwork Images
 1. When you open the website locally (after installing Node.js)
-2. Press **`Control + Option + A`** (Mac) or **`Ctrl + Alt + A`** (Windows) to open the admin panel
+2. Scroll to the very **bottom-left corner** and click the small text that says **`Dev Manager`**
 3. Upload all 21 artwork images
 4. Upload portrait photo for About page
 5. Upload feature image for Contact page
