@@ -160,10 +160,11 @@ const ImageManager: React.FC = () => {
   };
 
   // Don't show button to regular visitors
-  // Only show when user presses special key combination (Ctrl/Cmd + Shift + A)
+  // Only show when user presses special key combination (Ctrl + Alt + A)
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+      // Changed to Ctrl + Alt + A to avoid conflict with Chrome's Search Tabs (Cmd + Shift + A)
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         setIsOpen(true);
       }

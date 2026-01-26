@@ -10,7 +10,7 @@ The Portfolio Manager is now **password-protected** and **hidden from public vis
 ### Step 1: Open the Secret Admin Panel
 Regular visitors **cannot see** the "Website Setup" button anymore. To access it:
 
-**Press:** `Ctrl + Shift + A` (Windows/Linux) or `Cmd + Shift + A` (Mac)
+**Press:** `Control + Option + A` (Mac) or `Ctrl + Alt + A` (Windows/Linux)
 
 This will open the admin login screen.
 
@@ -30,7 +30,7 @@ Enter the password and click "Access Manager" to get into the Portfolio Manager.
 4. **Logout Button** - Securely end your admin session
 
 ### 🔒 How It Works:
-- **Keyboard Shortcut**: `Ctrl/Cmd + Shift + A` opens the login
+- **Keyboard Shortcut**: `Ctrl + Alt + A` opens the login
 - **Password Hashing**: Your password is hashed for basic security
 - **Session Storage**: Authentication expires when browser closes
 - **No Database Needed**: Works entirely client-side
@@ -71,7 +71,7 @@ git push origin main
 
 | Action | Keyboard Shortcut |
 |--------|------------------|
-| Open Admin Panel | `Ctrl + Shift + A` (Windows/Linux)<br>`Cmd + Shift + A` (Mac) |
+| Open Admin Panel | `Control + Option + A` (Mac)<br>`Ctrl + Alt + A` (Windows/Linux) |
 | Login | Enter password + press "Access Manager" |
 | Logout | Click "🔒 Logout" button in manager |
 | Save & Close | Click "Save & Exit" button |
@@ -132,8 +132,8 @@ If you forget your password:
 
 ### Problem: Can't access admin panel
 **Solution**: Make sure you're pressing the correct key combination:
-- Windows/Linux: `Ctrl + Shift + A`
-- Mac: `Cmd + Shift + A` (⌘ + ⇧ + A)
+- Mac: `Control + Option + A` (⌃ + ⌥ + A)
+- Windows/Linux: `Ctrl + Alt + A`
 
 ### Problem: Password not working
 **Solutions**:
@@ -158,7 +158,7 @@ If you forget your password:
 | Setting | Value |
 |---------|-------|
 | Default Password | `bahadery2026` |
-| Keyboard Shortcut | `Ctrl/Cmd + Shift + A` |
+| Keyboard Shortcut | `Ctrl + Alt + A` |
 | Session Duration | Until browser closes |
 | Authentication Method | Password hash comparison |
 | Storage Location | sessionStorage (browser) |
@@ -181,7 +181,7 @@ Before publishing your site, make sure:
 
 ## 💡 Pro Tips
 
-1. **Remember the Shortcut**: Write down `Ctrl/Cmd + Shift + A` somewhere safe
+1. **Remember the Shortcut**: Write down `Ctrl + Alt + A` somewhere safe
 2. **Use Strong Passwords**: Combine uppercase, lowercase, numbers, and symbols
 3. **Test Before Publishing**: Always test the login before pushing to production
 4. **Keep Code Backup**: Save a copy of your password in a secure password manager

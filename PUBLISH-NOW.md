@@ -3,8 +3,8 @@
 ## ✅ Current Status
 Your repository is ready and connected to GitHub!
 
-- **Repository**: https://github.com/saadatakbar797-eng/bahaderyArt.git
-- **Local commits**: 2 commits ready to push
+- **Repository**: https://github.com/SayedAkbar-AI-Voice-Hub/bahderyart.git
+- **Local commits**: Ready to push
 - **Branch**: main
 
 ---
@@ -31,7 +31,7 @@ videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
 
 ### 3. Upload Your Artwork Images
 1. When you open the website locally (after installing Node.js)
-2. Click "Website Setup" button (bottom-left)
+2. Press **`Control + Option + A`** (Mac) or **`Ctrl + Alt + A`** (Windows) to open the admin panel
 3. Upload all 21 artwork images
 4. Upload portrait photo for About page
 5. Upload feature image for Contact page
@@ -55,14 +55,14 @@ git push -u origin main
 
 After pushing to GitHub:
 
-1. Go to: https://github.com/saadatakbar797-eng/bahaderyArt/settings/pages
+1. Go to: https://github.com/SayedAkbar-AI-Voice-Hub/bahderyart/settings/pages
 2. Under "Source", select: **Deploy from a branch**
 3. Select branch: **main**
 4. Click **Save**
 
 Your site will be live at:
 ```
-https://saadatakbar797-eng.github.io/bahaderyArt/
+https://sayedakbar-ai-voice-hub.github.io/bahderyart/
 ```
 
 ---
