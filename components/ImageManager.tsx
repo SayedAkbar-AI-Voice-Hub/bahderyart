@@ -240,6 +240,7 @@ const ImageManager: React.FC = () => {
 
   const handleClose = () => {
     setIsOpen(false);
+    window.dispatchEvent(new CustomEvent('bahadery-data-updated'));
   };
 
   const clearAll = async () => {
@@ -415,7 +416,7 @@ const ImageManager: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-8 items-center">
                       <div className="aspect-video bg-gray-100 overflow-hidden border">
-                        {v.thumbnailUrl ? <img src={v.thumbnailUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400 uppercase italic">No Thumbnail</div>}
+                        {v.thumbnailUrl ? <img src={v.thumbnailUrl} className="w-full h-full object-cover" alt={v.title || 'Thumbnail'} /> : <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400 uppercase italic">No Thumbnail</div>}
                       </div>
                       <label className="cursor-pointer bg-gray-100 text-gray-600 px-4 py-4 text-[9px] text-center hover:bg-gray-200 transition-all uppercase font-bold rounded-sm">
                         Upload Thumbnail
@@ -434,7 +435,7 @@ const ImageManager: React.FC = () => {
             <div className="space-y-6">
               <h3 className="serif text-3xl italic">About Page Portrait</h3>
               <div className="aspect-[4/5] bg-gray-100 overflow-hidden border flex items-center justify-center">
-                {siteImages['site-about-portrait'] ? <img src={siteImages['site-about-portrait']} className="w-full h-full object-cover" /> : <span className="text-[10px] text-gray-400 uppercase italic">Default Portrait</span>}
+                {siteImages['site-about-portrait'] ? <img src={siteImages['site-about-portrait']} className="w-full h-full object-cover" alt="About page portrait" /> : <span className="text-[10px] text-gray-400 uppercase italic">Default Portrait</span>}
               </div>
               <label className="block w-full cursor-pointer bg-black text-white px-4 py-4 text-[10px] text-center uppercase font-bold rounded-sm">
                 Upload New Image
@@ -445,7 +446,7 @@ const ImageManager: React.FC = () => {
             <div className="space-y-6">
               <h3 className="serif text-3xl italic">Contact Page Feature</h3>
               <div className="aspect-[4/5] bg-gray-100 overflow-hidden border flex items-center justify-center">
-                {siteImages['site-contact-feature'] ? <img src={siteImages['site-contact-feature']} className="w-full h-full object-cover" /> : <span className="text-[10px] text-gray-400 uppercase italic">Default Feature Photo</span>}
+                {siteImages['site-contact-feature'] ? <img src={siteImages['site-contact-feature']} className="w-full h-full object-cover" alt="Contact page feature" /> : <span className="text-[10px] text-gray-400 uppercase italic">Default Feature Photo</span>}
               </div>
               <label className="block w-full cursor-pointer bg-black text-white px-4 py-4 text-[10px] text-center uppercase font-bold rounded-sm">
                 Upload New Image

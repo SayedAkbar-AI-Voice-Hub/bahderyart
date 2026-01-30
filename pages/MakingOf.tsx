@@ -13,37 +13,44 @@ const MakingOf: React.FC = () => {
   const [videoPosts, setVideoPosts] = useState<VideoProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadData = async () => {
+    try {
+      // 1. Load Social Feed (From Artworks)
+      const savedArt = localStorage.getItem('bahadery_art_collection');
+      const baseArt = savedArt ? JSON.parse(savedArt) : ARTWORKS;
+      const hydratedArt = await hydrateCollection(baseArt);
+      setFeedItems(hydratedArt.slice(0, 6));
+
+      // 2. Load Video Posts
+      const savedMaking = localStorage.getItem('bahadery_making_of');
+      const baseMaking = savedMaking ? JSON.parse(savedMaking) : MAKING_OF_VIDEOS;
+
+      const hydratedMaking = await Promise.all(
+        baseMaking.map(async (v: VideoProject) => {
+          // Check if thumbnail is a marker for IndexedDB
+          const stored = await getImage(v.id);
+          if (stored) {
+            return { ...v, thumbnailUrl: stored };
+          }
+          return v;
+        })
+      );
+      setVideoPosts(hydratedMaking);
+    } catch (err) {
+      console.error("MakingOf load error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        // 1. Load Social Feed (From Artworks)
-        const savedArt = localStorage.getItem('bahadery_art_collection');
-        const baseArt = savedArt ? JSON.parse(savedArt) : ARTWORKS;
-        const hydratedArt = await hydrateCollection(baseArt);
-        setFeedItems(hydratedArt.slice(0, 6));
+    loadData();
+  }, []);
 
-        // 2. Load Video Posts
-        const savedMaking = localStorage.getItem('bahadery_making_of');
-        const baseMaking = savedMaking ? JSON.parse(savedMaking) : MAKING_OF_VIDEOS;
-
-        const hydratedMaking = await Promise.all(
-          baseMaking.map(async (v: VideoProject) => {
-            // Check if thumbnail is a marker for IndexedDB
-            const stored = await getImage(v.id);
-            if (stored) {
-              return { ...v, thumbnailUrl: stored };
-            }
-            return v;
-          })
-        );
-        setVideoPosts(hydratedMaking);
-      } catch (err) {
-        console.error("MakingOf load error:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
+  useEffect(() => {
+    const handleDataUpdate = () => { loadData(); };
+    window.addEventListener('bahadery-data-updated', handleDataUpdate);
+    return () => window.removeEventListener('bahadery-data-updated', handleDataUpdate);
   }, []);
 
   if (isLoading) return <div className="h-[60vh] flex items-center justify-center serif italic text-gray-400">Loading Content...</div>;
@@ -80,6 +87,7 @@ const MakingOf: React.FC = () => {
               {v.videoUrl ? (
                 <iframe
                   src={v.videoUrl}
+                  title={v.title}
                   className="absolute inset-0 w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

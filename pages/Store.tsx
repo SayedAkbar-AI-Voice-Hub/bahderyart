@@ -13,20 +13,27 @@ const Store: React.FC = () => {
   const [collection, setCollection] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadCollection = async () => {
+    try {
+      const saved = localStorage.getItem('bahadery_art_collection');
+      const baseCollection = saved ? JSON.parse(saved) : ARTWORKS;
+      const hydrated = await hydrateCollection(baseCollection);
+      setCollection(hydrated);
+    } catch (err) {
+      console.error("Store load error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        const saved = localStorage.getItem('bahadery_art_collection');
-        const baseCollection = saved ? JSON.parse(saved) : ARTWORKS;
-        const hydrated = await hydrateCollection(baseCollection);
-        setCollection(hydrated);
-      } catch (err) {
-        console.error("Store load error:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
+    loadCollection();
+  }, []);
+
+  useEffect(() => {
+    const handleDataUpdate = () => { loadCollection(); };
+    window.addEventListener('bahadery-data-updated', handleDataUpdate);
+    return () => window.removeEventListener('bahadery-data-updated', handleDataUpdate);
   }, []);
 
   const storeItems = collection.filter(a => !!a.showInStore);

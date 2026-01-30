@@ -13,14 +13,21 @@ const Indoor: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [collection, setCollection] = useState<Artwork[]>([]);
 
+  const loadCollection = async () => {
+    const saved = localStorage.getItem('bahadery_art_collection');
+    const baseCollection = saved ? JSON.parse(saved) : ARTWORKS;
+    const hydrated = await hydrateCollection(baseCollection);
+    setCollection(hydrated);
+  };
+
   useEffect(() => {
-    const load = async () => {
-      const saved = localStorage.getItem('bahadery_art_collection');
-      const baseCollection = saved ? JSON.parse(saved) : ARTWORKS;
-      const hydrated = await hydrateCollection(baseCollection);
-      setCollection(hydrated);
-    };
-    load();
+    loadCollection();
+  }, []);
+
+  useEffect(() => {
+    const handleDataUpdate = () => { loadCollection(); };
+    window.addEventListener('bahadery-data-updated', handleDataUpdate);
+    return () => window.removeEventListener('bahadery-data-updated', handleDataUpdate);
   }, []);
 
   const indoorPieces = collection.filter(a => a.category === 'indoor');
